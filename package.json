@@ -14,8 +14,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {},
+  "devDependencies": {
+    "artillery": "^1.6.0-18",
+    "pm2": "^2.10.4"
+  },
   "dependencies": {
+    "colors": "^1.3.0",
     "express": "^4.16.3",
     "socket.io": "^2.1.1"
   }

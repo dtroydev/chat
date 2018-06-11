@@ -1,5 +1,6 @@
 'use strict';
 
+require('colors');
 const express = require('express');
 
 const app = express();
@@ -13,20 +14,37 @@ app.use(express.static(staticPath));
 
 server.listen(PORT, () => console.log(`Server started on ${PORT}`));
 
+function prepareMsg(msg) {
+  const msgOut = {};
+  if (typeof msg === 'string') {
+    msgOut.from = 'admin';
+    msgOut.text = msg;
+  } else {
+    Object.assign(msgOut, msg);
+  }
+  msgOut.createdAt = Date.now();
+  return msgOut;
+}
+
+let connCounter = 0;
+
 io.on('connection', (socket) => {
-  console.log('User Connected');
+  connCounter += 1;
+  const { id } = socket;
+  console.log('Connection:'.green, id, 'Count:', connCounter);
 
-  socket.on('createMessage', (msg) => {
-    console.log('Received createMessage event from client', msg);
-    const msgOut = Object.assign({}, msg);
-    msgOut.createdAt = Date.now();
+  socket.broadcast.emit('newMessage', prepareMsg('new user joined'));
+  socket.emit('newMessage', prepareMsg('welcome to chat'));
 
-    console.log('Sending newMessage event to all clients', msgOut);
-    io.emit('newMessage', msgOut);
+  socket.on('createMessage', (msg, cb) => {
+    console.log('Message:'.yellow, id, msg);
+    cb('server ack');
+    io.emit('newMessage', prepareMsg(msg));
   });
 
   socket.on('disconnect', () => {
-    console.log('User Disconnected');
+    connCounter -= 1;
+    console.log('Disconnection'.red, id, 'Count:', connCounter);
   });
 });
 

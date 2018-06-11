@@ -2,6 +2,8 @@
 
 'use strict';
 
+let counter = 0;
+
 const socket = io();
 socket.on('connect', () => {
   console.log('Connected to Server');
@@ -19,5 +21,15 @@ socket.on('newMessage', (msg) => {
     .toString()
     .substr(16, 8);
 
-  document.getElementById('input').innerHTML = `[${ts}] ${msg.from}: ${msg.text}`;
+  const text = `[${ts}] ${msg.from}: ${msg.text}`;
+
+  const container = document.getElementById('container');
+
+  const message = document.createElement('div');
+  message.id = `${counter}`;
+  message.className = 'message';
+  message.textContent = text;
+  container.appendChild(message);
+
+  counter += 1;
 });
