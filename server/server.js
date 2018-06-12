@@ -26,8 +26,15 @@ io.on('connection', (socket) => {
 
   socket.on('createMessage', (msg, cb) => {
     console.log('Message:'.yellow, id, msg);
-    cb('server ack');
-    io.emit('newMessage', prepareMsg(msg.from, msg.text));
+    const msgOut = prepareMsg(msg.from, msg.text);
+    if (!msgOut) {
+      if (!msg.text.trim()) {
+        return cb('error: blank message not allowed');
+      }
+      return cb('error');
+    }
+    io.emit('newMessage', msgOut);
+    return cb();
   });
 
   socket.on('disconnect', () => {

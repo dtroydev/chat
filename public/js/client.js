@@ -4,7 +4,10 @@
 
 let counter = 0;
 
+const cb = (err) => { if (err) console.log(err); };
+
 const socket = io();
+
 socket.on('connect', () => {
   console.log('Connected to Server');
 });
@@ -32,4 +35,13 @@ socket.on('newMessage', (msg) => {
   container.appendChild(message);
 
   counter += 1;
+});
+
+$('#message-form').on('submit', (event) => {
+  event.preventDefault();
+  socket.emit('createMessage', {
+    from: socket.id,
+    text: $('[name="message"]').val(),
+  }, cb);
+  $('[name="message"]').val('');
 });

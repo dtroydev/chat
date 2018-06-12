@@ -9,7 +9,7 @@ function prepareMsg(from, text) {
     msgOut.text = text;
   } else return null;
 
-  if (!msgOut.from || !msgOut.text) return null;
+  if (!msgOut.from.trim() || !msgOut.text.trim()) return null;
 
   msgOut.createdAt = Date.now();
 
