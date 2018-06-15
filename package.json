@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server/server.js",
     "test": "mocha server/*/*.test.js",
-    "test-watch": "nodemon --exec 'npm t'"
+    "test-watch": "nodemon --exec 'npm t'",
+    "postinstall": "npm t"
   },
   "engines": {
     "node": "10.3.0",

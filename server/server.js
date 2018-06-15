@@ -27,12 +27,7 @@ io.on('connection', (socket) => {
   socket.on('createMessage', (msg, cb) => {
     console.log('Message:'.yellow, id, msg);
     const msgOut = prepareMsg(msg.from, msg.text);
-    if (!msgOut) {
-      if (!msg.text.trim()) {
-        return cb('error: blank message not allowed');
-      }
-      return cb('error');
-    }
+    if (!msgOut) return cb('error: blank and/or invalid message property name(s) and/or value(s)');
     io.emit('newMessage', msgOut);
     return cb();
   });
@@ -40,7 +35,7 @@ io.on('connection', (socket) => {
   socket.on('createLocation', (location, cb) => {
     console.log('Message:'.yellow, id, location);
     const locationOut = prepareLocation(location);
-    if (!locationOut) return cb('error');
+    if (!locationOut) return cb('error: blank and/or invalid location message property name(s) and/or value(s)');
     io.emit('newLocation', locationOut);
     return cb();
   });
