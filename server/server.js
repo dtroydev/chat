@@ -17,9 +17,13 @@ server.listen(PORT, () => console.log(`Server started on ${PORT}`));
 let connCounter = 0;
 
 io.on('connection', (socket) => {
+  // console.log(socket);
+  const ip1 = socket.request.connection.remoteAddress;
+  const ip2 = socket.handshake.headers['x-forwarded-for'];
+  const clientIP = ip2 || ip1;
   connCounter += 1;
   const { id } = socket;
-  console.log('Connection:'.green, id, 'User Count:', connCounter);
+  console.log('Connection:'.green, id, clientIP, 'User Count:', connCounter);
 
   socket.broadcast.emit('newMessage', prepareMsg('admin', 'new user joined'));
   socket.emit('newMessage', prepareMsg('admin', 'welcome to chat'));
@@ -42,7 +46,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', (reason) => {
     connCounter -= 1;
-    console.log('Disconnection'.red, id, 'User Count:', connCounter, 'Reason:', reason);
+    console.log('Disconnection'.red, id, clientIP, 'User Count:', connCounter, 'Reason:', reason);
   });
 });
 
