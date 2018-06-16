@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,13 +10,14 @@
     <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32"/>
     <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16"/>
   </head>
+
   <body class="chat">
     <div class="chat__sidebar">
       <h3>People</h3>
       <div id="users"></div>
     </div>
     <div class="chat__main">
-      <div class="chat__messages" id="container"></div>
+      <div class="chat__messages" id="messages"></div>
       <div class="chat__footer">
         <form id="message-form">
           <input name="message" type="text" placeholder="Message" autofocus="autofocus" autocomplete="off"/>
@@ -26,6 +28,26 @@
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/libs/jquery-3.3.1.min.js"></script>
+    <script src="/js/libs/mustache.min.js"></script>
+    <script src="/js/libs/moment.min.js"></script>
     <script src="/js/client.js"></script>
+    <script id="template" type="text/template">
+      <div id="{{counter}}" class="message">
+        <div class="message__title">
+          <span>{{time}}</span>
+          <h4>{{from}}</h4>
+        </div>
+        <div class="message__body">
+          {{#message}}
+            <p>{{text}}</p>
+          {{/message}}
+          {{#location}}
+            <a href="{{text}}" target="_blank">My Location</a>
+          {{/location}}
+        </div>
+      </div>
+    </script>
+
   </body>
+
 </html>

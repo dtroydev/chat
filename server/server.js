@@ -49,5 +49,3 @@ io.on('connection', (socket) => {
     console.log('Disconnection'.red, id, clientIP, 'User Count:', connCounter, 'Reason:', reason);
   });
 });
-
-// yeah

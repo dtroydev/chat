@@ -1,4 +1,4 @@
-/* global io */
+/* global io moment Mustache */
 
 'use strict';
 
@@ -17,6 +17,19 @@ const cbLocation = (button, err) => {
   button.removeAttr('disabled').text('Send Location');
 };
 
+const addEntry = (msg, type) => {
+  const time = moment(msg.createdAt).format('hh:mm:ss a');
+  const { from, text } = msg;
+  const template = document.getElementById('template').innerHTML;
+  const view = {
+    counter, from, text, time,
+  };
+  view[type] = true;
+  const render = Mustache.render(template, view);
+  const messages = document.getElementById('messages');
+  messages.innerHTML += render;
+};
+
 const socket = io();
 
 socket.on('connect', () => {
@@ -32,54 +45,18 @@ socket.on('disconnect', (reason) => {
 // custom events
 socket.on('newMessage', (msg) => {
   console.log('Received New Message', msg);
-
-  const ts = new Date(msg.createdAt)
-    .toString()
-    .substr(16, 8);
-
-  const text = `[${ts}] ${msg.from}: ${msg.text}`;
-
-  const container = document.getElementById('container');
-
-  const message = document.createElement('div');
-  message.id = `${counter}`;
-  message.className = 'message';
-  message.textContent = text;
-  container.appendChild(message);
-
+  addEntry(msg, 'message');
   counter += 1;
 });
 
 socket.on('newLocation', (msg) => {
   console.log('Received New Location', msg);
-  const ts = new Date(msg.createdAt).toString()
-    .substr(16, 8);
-
-  const text = `[${ts}] ${msg.from}: `;
-  // ${msg.text};
-
-  const container = document.getElementById('container');
-  const message = document.createElement('div');
-  const aTag = document.createElement('a');
-
-  message.id = `${counter}`;
-  message.className = 'message';
-  message.textContent = text;
-  // message.innerHTML = text;
-
-  aTag.setAttribute('href', msg.text);
-  aTag.setAttribute('target', '_blank');
-  aTag.textContent = 'My Location on Google Maps';
-
-  container.appendChild(message);
-  message.appendChild(aTag);
+  addEntry(msg, 'location');
   counter += 1;
 });
 
 socket.on('ping', () => {
-  console.log('sending ping to server', new Date()
-    .toString()
-    .substr(16, 8));
+  console.log('sending ping to server', moment().format('hh:mm:ss a'));
 });
 
 socket.on('pong', (latency) => {
