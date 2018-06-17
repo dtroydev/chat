@@ -17,7 +17,7 @@ server.listen(PORT, () => console.log(`Server started on ${PORT}`));
 let connCounter = 0;
 
 io.on('connection', (socket) => {
-  // console.log(socket);
+  // User IP logging (proxy aware)
   const ip1 = socket.request.connection.remoteAddress;
   const ip2 = socket.handshake.headers['x-forwarded-for'];
   const clientIP = ip2 || ip1;
@@ -25,9 +25,11 @@ io.on('connection', (socket) => {
   const { id } = socket;
   console.log('Connection:'.green, id, clientIP, 'User Count:', connCounter);
 
+  // new user greeting / broadcast notice
   socket.broadcast.emit('newMessage', prepareMsg('admin', 'new user joined'));
   socket.emit('newMessage', prepareMsg('admin', 'welcome to chat'));
 
+  // incoming message with cb
   socket.on('createMessage', (msg, cb) => {
     console.log('Message:'.yellow, id, msg);
     const msgOut = prepareMsg(msg.from, msg.text);
@@ -36,6 +38,7 @@ io.on('connection', (socket) => {
     return cb();
   });
 
+  // incoming location with cb
   socket.on('createLocation', (location, cb) => {
     console.log('Message:'.yellow, id, location);
     const locationOut = prepareLocation(location);
@@ -44,6 +47,7 @@ io.on('connection', (socket) => {
     return cb();
   });
 
+  // disconnections
   socket.on('disconnect', (reason) => {
     connCounter -= 1;
     console.log('Disconnection'.red, id, clientIP, 'User Count:', connCounter, 'Reason:', reason);
