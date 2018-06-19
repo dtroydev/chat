@@ -178,6 +178,7 @@ button:disabled {
 .message__title h4 {
   font-weight: 600;
   margin-left: 10px;
+  /* display: inline; */
 }
 
 .message__title span {
@@ -186,6 +187,11 @@ button:disabled {
 
 span.milli {
   font-size: .75rem;
+  align-self: center;
+}
+
+span.leftmargin {
+  margin-left: 10px;
 }
 
 @media (max-width: 600px) {
