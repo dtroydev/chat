@@ -15,32 +15,34 @@ function getUrlParams(prop) {
       const [key, val] = e.split('=');
       params[key] = decodeURIComponent(val).trim();
     });
-
   return (prop && prop in params) ? params[prop] : params;
 }
 
 const params = getUrlParams();
 // redirect back if blanks are supplied for name or room name
+console.log(params);
 if (!params.room || !params.name) {
   alert('name and room required');
   window.location.href = '/index.html';
   // return;
 } else {
   (() => {
+    // socket init
     const socket = io();
+
     // set page title
     document.title = `${params.room} | Chat App`;
 
     // message div id
     let counter = 0;
 
-    // socket init
-
     // main document selectors
     const sendMessageButton = $('#send-message');
     const sendLocationButton = $('#send-location');
     const messagesContainer = $('#messages');
+    const usersContainer = $('#users');
     const fromName = params.name;
+
     let fromId = '';
 
     // callback for message emits
@@ -94,7 +96,13 @@ if (!params.room || !params.name) {
       fromId = socket.id;
       sendMessageButton.removeAttr('disabled').text('Send');
       sendLocationButton.removeAttr('disabled').text('Send Location');
-      socket.emit('join', params, (err) => { if (err) console.log(err); });
+      socket.emit('join', params, (err) => {
+        if (err) {
+          console.log(err);
+          alert(err);
+          window.location.href = '/index.html';
+        }
+      });
     });
 
     // socket disconnection
@@ -102,11 +110,22 @@ if (!params.room || !params.name) {
       console.log('Disconnected from Server', reason);
     });
 
+    // updateUserList
+    socket.on('updateUserList', (users) => {
+      console.log(users);
+      usersContainer.empty();
+      const list = $('<ol></ol>');
+      users.forEach((user) => {
+        list.append($('<li></li>').text(user));
+      });
+      usersContainer.html(list);
+    });
+
     // incoming messages
     socket.on('newMessage', (msg) => {
       console.log('Received New Message', msg);
       addEntry(msg, 'message');
-      scroller();
+      scroller(); // auto scroll logic
       counter += 1;
     });
 

@@ -5,9 +5,13 @@
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
+    "babelstart": "npm run babel && npm start",
     "test": "mocha server/*/*.test.js",
     "test-watch": "nodemon --exec 'npm t'",
-    "postinstall": "npm t"
+    "postinstall": "npm run babelheroku && npm t",
+    "babel": "babel public/js/client.js -o public/js/client.es5.js && sed -i '' -E $'1s/^/\\/* eslint-disable *\\/\\\\\\n/' public/js/client.es5.js",
+    "babelheroku": "babel public/js/client.js -o public/js/client.es5.js && sed -i '1s/^/\\/* eslint-disable *\\/\\n/' public/js/client.es5.js",
+    "uglify": "uglifyjs public/js/client.es5.js -c -m -o public/js/client.es5.min.js"
   },
   "engines": {
     "node": "10.3.0",
@@ -18,6 +22,8 @@
   "license": "ISC",
   "devDependencies": {
     "artillery": "^1.6.0-18",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
     "expect": "^23.1.0",
     "mocha": "^5.2.0",
     "pm2": "^2.10.4"

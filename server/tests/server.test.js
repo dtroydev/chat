@@ -4,6 +4,7 @@ require('colors');
 const expect = require('expect');
 const { prepareMsg, prepareLocation } = require('../utils/message');
 const { validateJoinParams } = require('../utils/join.js');
+const { Users } = require('../utils/users.js');
 
 describe('TEST SUITE: prepareMsg function'.black.bgWhite, () => {
   it('should return a message object with timestamp (input: from:\'...\', text:\'...\')', () => {
@@ -159,5 +160,70 @@ describe('TEST SUITE: validateJoinParams function'.black.bgWhite, () => {
   it('should return false if room is a number', () => {
     const params = { name: 'Bob', room: 123 };
     expect(validateJoinParams(params)).toBe(false);
+  });
+});
+
+describe('TEST SUITE: users function'.black.bgWhite, () => {
+  const users = Users();
+  const defaultList = [
+    { id: 1, name: 'Tom', room: 'room1' },
+    { id: 2, name: 'Tim', room: 'room13' },
+    { id: 3, name: 'Mick', room: 'room40' },
+    { id: 4, name: 'Mike', room: 'room1' },
+  ];
+
+  beforeEach(() => {
+    users.list.splice(0, users.list.length, ...defaultList);
+  });
+
+  it('Users list display getter displays whole list', () => {
+    expect(users.list).toEqual(defaultList);
+  });
+
+  it('Users list correctly shows a user', () => {
+    expect(users.getUser(defaultList[0].id)).toEqual(defaultList[0]);
+  });
+
+  it('Users list returns null on attempts to view a non existent user', () => {
+    expect(users.getUser(999)).toBeNull();
+  });
+  it('Users list correctly adds a user', () => {
+    const user = { id: 10, name: 'Bob', room: 'Room 1' };
+    expect(users.addUser(user.id, user.name, user.room)).toEqual(user);
+    expect(users.getUser(user.id)).toEqual(user);
+    expect(users.list).not.toEqual(defaultList);
+    expect(users.list.length).toBe(defaultList.length + 1);
+  });
+
+  it('Users list does not allow duplicate user with duplicate ids to be added', () => {
+    const user = { id: 20, name: 'Bob', room: 'Room 1' };
+    expect(users.addUser(user.id, user.name, user.room)).toEqual(user);
+    const list = users.list.slice();
+    expect(users.list).not.toEqual(defaultList);
+    expect(users.addUser(user.id, user.name, user.room)).toBeNull();
+    expect(users.list).toEqual(list);
+  });
+
+  it('Users list correctly deletes an existing user', () => {
+    users.deleteUser(1);
+    expect(users.getUser(1)).toBeNull();
+    expect(users.list).not.toEqual(defaultList);
+    expect(users.list.length).toBe(defaultList.length - 1);
+  });
+
+  it('Users list delete returns null if attempt to delete a non-existent idis made', () => {
+    expect(users.deleteUser(999)).toBeNull();
+    expect(users.list).toEqual(defaultList);
+  });
+
+  it('Users list correctly displays room list', () => {
+    const room = 'room1';
+    const roomUserList = defaultList.filter(e => e.room === room).map(({ name }) => name);
+    expect(users.getUserList(room)).toEqual(roomUserList);
+  });
+
+  it('Users function should not allow multiple instances (singleton)', () => {
+    const users2 = Users();
+    expect(users).toBe(users2);
   });
 });

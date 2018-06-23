@@ -9,6 +9,7 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const { prepareMsg, prepareLocation } = require('./utils/message.js');
 const { validateJoinParams } = require('./utils/join.js');
+const { Users } = require('./utils/users.js');
 const staticPath = require('path').join(__dirname, '../public');
 
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,8 @@ app.use(express.static(staticPath));
 server.listen(PORT, () => console.log(`Server started on ${PORT}`));
 
 let connCounter = 0;
+
+const users = Users();
 
 io.on('connection', (socket) => {
   // User IP logging (proxy aware)
@@ -45,8 +48,12 @@ io.on('connection', (socket) => {
     socket.broadcast.to(room).emit('newMessage', prepareMsg({
       fromName: 'Admin',
       fromId: 'Server',
-      text: 'New user joined',
+      text: `${params.name} has joined the room`,
     }));
+    users.deleteUser(socket.id); // user can only be in a single room at a time
+    users.addUser(socket.id, params.name, room);
+    // broadcast to all room participants the room list
+    io.to(room).emit('updateUserList', users.getUserList(room));
     return cb();
   });
 
@@ -70,6 +77,15 @@ io.on('connection', (socket) => {
 
   // disconnections
   socket.on('disconnect', (reason) => {
+    const { name } = users.getUser(socket.id);
+    users.deleteUser(socket.id);
+    // broadcast to all room participants the room list
+    socket.broadcast.to(room).emit('newMessage', prepareMsg({
+      fromName: 'Admin',
+      fromId: 'Server',
+      text: `${name} has left the room`,
+    }));
+    socket.broadcast.to(room).emit('updateUserList', users.getUserList(room));
     connCounter -= 1;
     console.log(moment().format('hh:mm:ss.SSS a'), 'Disconnection'.red, id, clientIP, 'User Count:', connCounter, 'Reason:', reason);
   });

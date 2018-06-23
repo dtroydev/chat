@@ -130,6 +130,9 @@ button:disabled {
   flex-direction: column;
   height: 100vh;
   width: 100%;
+  /*border-top: 10px solid #e6eaee;
+  border-right: 10px solid #e6eaee;
+  border-left: 10px solid #e6eaee;*/
 }
 
 .chat__messages {
@@ -142,6 +145,8 @@ button:disabled {
   background: #e6eaee;
   display: flex;
   padding: 10px;
+  /*padding-top: 10px;
+  padding-bottom: 10px; */
   /*height: 60px;*/
   flex-shrink: 0;
 }

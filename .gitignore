@@ -1,4 +1,6 @@
+.DS_Store
 node_modules
 nodemon.json
 test
 playground
+client.es5.js
