@@ -22,7 +22,7 @@ app.use(express.static(staticPath));
 const users = Users();
 
 app.get('/rooms', (req, res) => {
-  console.log('received GET /rooms');
+  // console.log('received GET /rooms');
   res.send(users.getRoomList());
 });
 
@@ -32,9 +32,10 @@ let connCounter = 0;
 
 io.on('connection', (socket) => {
   // User IP logging (proxy aware)
-  const ip1 = socket.request.connection.remoteAddress;
-  const ip2 = socket.handshake.headers['x-forwarded-for'];
-  const clientIP = ip2 || ip1;
+  // const ip1 = socket.request.connection.remoteAddress;
+  // const ip2 = socket.handshake.headers['x-forwarded-for'];
+  // const clientIP = ip2 || ip1;
+  const clientIP = '_'; // privacy
   connCounter += 1;
   const { id } = socket;
   let room = null;
@@ -49,7 +50,7 @@ io.on('connection', (socket) => {
 
   // incoming join request with cb
   socket.on('join', (params, cb) => {
-    console.log(moment().format('hh:mm:ss.SSS a'), 'Join Request:'.yellow, params);
+    // console.log(moment().format('hh:mm:ss.SSS a'), 'Join Request:'.yellow, params);
 
     if (!validateJoinParams(params)) return cb('error: blank and/or invalid join request property name(s) and/or value(s)');
 
@@ -77,7 +78,7 @@ io.on('connection', (socket) => {
 
   // incoming message with cb
   socket.on('createMessage', (msg, cb) => {
-    console.log(moment().format('hh:mm:ss.SSS a'), 'Message:'.yellow, id, msg);
+    // console.log(moment().format('hh:mm:ss.SSS a'), 'Message:'.yellow, id, msg);
     const msgOut = prepareMsg(msg);
     if (!msgOut) return cb('error: blank and/or invalid message property name(s) and/or value(s)');
     io.to(room).emit('newMessage', msgOut);
@@ -86,7 +87,7 @@ io.on('connection', (socket) => {
 
   // incoming location with cb
   socket.on('createLocation', (location, cb) => {
-    console.log(moment().format('hh:mm:ss.SSS a'), 'Message:'.yellow, id, location);
+    // console.log(moment().format('hh:mm:ss.SSS a'), 'Message:'.yellow, id, location);
     const locationOut = prepareLocation(location);
     if (!locationOut) return cb('error: blank and/or invalid location message property name(s) and/or value(s)');
     io.to(room).emit('newLocation', locationOut);

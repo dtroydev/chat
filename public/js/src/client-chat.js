@@ -105,6 +105,11 @@ if (!params.room || !params.name) {
           window.location.href = '/index.html';
         }
       });
+      // easter egg, apply cat background to a room called 'troy room'
+      if (params.room === 'troy room') {
+        console.log('easter egg');
+        $('.chat__main').addClass('cat');
+      }
     });
 
     // socket disconnection

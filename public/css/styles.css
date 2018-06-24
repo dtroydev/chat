@@ -130,9 +130,11 @@ button:disabled {
   flex-direction: column;
   height: 100vh;
   width: 100%;
-  /*border-top: 10px solid #e6eaee;
-  border-right: 10px solid #e6eaee;
-  border-left: 10px solid #e6eaee;*/
+}
+
+.cat {
+  background-image: url('/image/full-moon-cat.jpg');
+  background-position: center;
 }
 
 .chat__messages {
