@@ -110,6 +110,7 @@ if (!params.room || !params.name) {
         console.log('easter egg');
         $('.chat__main').addClass('cat');
       }
+      // end easter egg
     });
 
     // socket disconnection
@@ -139,6 +140,13 @@ if (!params.room || !params.name) {
       addEntry(msg, 'message');
       scroller(); // auto scroll logic
       counter += 1;
+      // easter egg apply distincitve purple/green text style to room called 'troy room'
+      if (params.room === 'troy room') {
+        console.log('text easter egg');
+        $('.message__title').addClass('cat');
+        $('.message__body').addClass('cat');
+      }
+      // end easter egg
     });
 
     // incoming locations

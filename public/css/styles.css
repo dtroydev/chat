@@ -132,7 +132,7 @@ button:disabled {
   width: 100%;
 }
 
-.cat {
+.chat__main.cat {
   background-image: url('/image/full-moon-cat.jpg');
   background-position: center;
 }
@@ -190,6 +190,20 @@ button:disabled {
 
 .message__title span {
   color: #999;
+}
+
+.message__title.cat span {
+  color: white;
+}
+
+.message__title.cat h4 {
+  color: purple;
+  font-weight: bold;
+}
+
+.message__body.cat p {
+  color: lightgreen;
+  font-weight: bold;
 }
 
 span.milli {
