@@ -1,3 +1,7 @@
+/* eslint
+    no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["socket"] }]
+*/
+
 'use strict';
 
 require('colors');
@@ -15,11 +19,16 @@ const staticPath = require('path').join(__dirname, '../public');
 const PORT = process.env.PORT || 3000;
 app.use(express.static(staticPath));
 
+const users = Users();
+
+app.get('/rooms', (req, res) => {
+  console.log('received GET /rooms');
+  res.send(users.getRoomList());
+});
+
 server.listen(PORT, () => console.log(`Server started on ${PORT}`));
 
 let connCounter = 0;
-
-const users = Users();
 
 io.on('connection', (socket) => {
   // User IP logging (proxy aware)
@@ -41,19 +50,28 @@ io.on('connection', (socket) => {
   // incoming join request with cb
   socket.on('join', (params, cb) => {
     console.log(moment().format('hh:mm:ss.SSS a'), 'Join Request:'.yellow, params);
+
     if (!validateJoinParams(params)) return cb('error: blank and/or invalid join request property name(s) and/or value(s)');
+
     ({ room } = params);
+    room = room.toLowerCase();
+
+    if (users.getUserList(params.room).includes(params.name)) return cb('error: user by that name already exists in this room');
+
+    users.deleteUser(socket.id); // user can only be in a single room at a time
     socket.join(room);
+    users.addUser(socket.id, params.name, room);
+
     // broadcast to all others to let them know a user joined
     socket.broadcast.to(room).emit('newMessage', prepareMsg({
       fromName: 'Admin',
       fromId: 'Server',
       text: `${params.name} has joined the room`,
     }));
-    users.deleteUser(socket.id); // user can only be in a single room at a time
-    users.addUser(socket.id, params.name, room);
+
     // broadcast to all room participants the room list
-    io.to(room).emit('updateUserList', users.getUserList(room));
+    io.to(room).emit('updateUserList', users.getUserList(params.room));
+
     return cb();
   });
 
@@ -77,15 +95,17 @@ io.on('connection', (socket) => {
 
   // disconnections
   socket.on('disconnect', (reason) => {
-    const { name } = users.getUser(socket.id);
-    users.deleteUser(socket.id);
-    // broadcast to all room participants the room list
-    socket.broadcast.to(room).emit('newMessage', prepareMsg({
-      fromName: 'Admin',
-      fromId: 'Server',
-      text: `${name} has left the room`,
-    }));
-    socket.broadcast.to(room).emit('updateUserList', users.getUserList(room));
+    const user = users.getUser(socket.id);
+    if (user) {
+      users.deleteUser(socket.id);
+      // broadcast to all room participants the room list
+      socket.broadcast.to(room).emit('newMessage', prepareMsg({
+        fromName: 'Admin',
+        fromId: 'Server',
+        text: `${user.name} has left the room`,
+      }));
+      socket.broadcast.to(room).emit('updateUserList', users.getUserList(room));
+    }
     connCounter -= 1;
     console.log(moment().format('hh:mm:ss.SSS a'), 'Disconnection'.red, id, clientIP, 'User Count:', connCounter, 'Reason:', reason);
   });

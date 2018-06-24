@@ -34,6 +34,9 @@ const Users = (() => { // IIFE
         return userList.filter(e => e.room === room)
           .map(({ name }) => name);
       },
+      getRoomList() {
+        return [...new Set(userList.map(e => e.room))];
+      },
     });
     return instance;
   };

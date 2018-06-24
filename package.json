@@ -8,9 +8,9 @@
     "babelstart": "npm run babel && npm start",
     "test": "mocha server/*/*.test.js",
     "test-watch": "nodemon --exec 'npm t'",
+    "babel": "babel public/js/src -d public/js && ls public/js/client-* | xargs -n1 sed -i '' -E $'1s/^/\\/* eslint-disable *\\/\\\\\\n/'",
+    "babelheroku": "babel public/js/src -d public/js && ls public/js/client-* | xargs -n1 sed -i '1s/^/\\/* eslint-disable *\\/\\n/'",
     "postinstall": "npm run babelheroku && npm t",
-    "babel": "babel public/js/client.js -o public/js/client.es5.js && sed -i '' -E $'1s/^/\\/* eslint-disable *\\/\\\\\\n/' public/js/client.es5.js",
-    "babelheroku": "babel public/js/client.js -o public/js/client.es5.js && sed -i '1s/^/\\/* eslint-disable *\\/\\n/' public/js/client.es5.js",
     "uglify": "uglifyjs public/js/client.es5.js -c -m -o public/js/client.es5.min.js"
   },
   "engines": {

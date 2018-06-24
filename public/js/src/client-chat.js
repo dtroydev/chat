@@ -26,13 +26,15 @@ if (!params.room || !params.name) {
   window.location.href = '/index.html';
   // return;
 } else {
+  // force lower case room names
+  params.room = params.room.toLowerCase();
   (() => {
     // socket init
     const socket = io();
 
     // set page title
     document.title = `${params.room} | Chat App`;
-
+    $('#room').text(`${params.room}`);
     // message div id
     let counter = 0;
 
@@ -116,8 +118,13 @@ if (!params.room || !params.name) {
       usersContainer.empty();
       const list = $('<ol></ol>');
       users.forEach((user) => {
-        list.append($('<li></li>').text(user));
+        if (user === fromName) {
+          list.prepend($('<li></li>').text(user));
+        } else {
+          list.append($('<li></li>').text(user));
+        }
       });
+      $(':first-child', list).css('background-color', 'orange');
       usersContainer.html(list);
     });
 
