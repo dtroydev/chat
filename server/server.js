@@ -17,6 +17,14 @@ const { Users } = require('./utils/users.js');
 const staticPath = require('path').join(__dirname, '../public');
 
 const PORT = process.env.PORT || 3000;
+
+// block src files
+app.use((req, res, next) => {
+  const result = decodeURI(req.url).match(/^.*src.*$/i);
+  if (result) return res.status(404).end();
+  return next();
+});
+
 app.use(express.static(staticPath));
 
 const users = Users();
